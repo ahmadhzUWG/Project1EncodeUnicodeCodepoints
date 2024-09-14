@@ -31,7 +31,7 @@ public class Codepoint {
 		if (!isValidCodepoint(hexString)) {
 			throw new IllegalArgumentException("The hexadecimal string isn't a valid codepoint");
 		} else {
-			this.hexString = hexString; 
+			this.hexString = hexString;  
 		}
 		
 	}
@@ -40,10 +40,39 @@ public class Codepoint {
 	 * Returns the codepoint in UTF-32 encoding, as an 
 	 * 8-digit hexadecimal string, without spaces or 0x prefix
 	 * 
-	 * @return
+	 * @precondition none
+	 * @postcondition none
+	 *  
+	 * @return the codepoint as a 4-byte UTF-32 encoded string, without spaces or 0x prefix
 	 */
 	public String toUTF32() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(); 
+	}
+	
+	/**
+	 * Returns the codepoint in UTF-16 encoding, as either a
+	 * 4-digit or 8-digit hexadecimal string (as appropriate), without spaces or 0x prefix
+	 * 
+	 * @precondition none
+	 * @postcondition none
+	 *  
+	 * @return the codepoint as a 2-byte/4-byte (as appropriate) UTF-16 encoded string, without spaces or 0x prefix
+	 */
+	public String toUTF16() {
+		throw new UnsupportedOperationException(); 
+	}
+	
+	/**
+	 * Returns the codepoint in UTF-8 encoding, as either a 
+	 * 2-digit, 4-digit, 6-digit, or 8-digit hexadecimal string (as appropriate), without spaces or 0x prefix
+	 * 
+	 * @precondition none
+	 * @postcondition none
+	 *  
+	 * @return the codepoint as a 1-byte/2-byte/3-byte/4-byte (as appropriate) UTF-8 encoded string, without spaces or 0x prefix
+	 */
+	public String toUTF8() {
+		throw new UnsupportedOperationException(); 
 	}
 	
 	/**

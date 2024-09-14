@@ -8,6 +8,21 @@ import edu.westga.cs3110.unicoder.model.Codepoint;
 
 class TestConstructor {
 
+	public static void assertEquals(String expected, String actual) {
+		if (expected == null && actual == null) {
+			return;
+		}
+		if (expected == null) {
+			fail("Expected string is null and actual is not.");
+		}
+		if (actual == null) {
+			fail("Expected string is not null and actual is null.");
+		}
+		if (!expected.equalsIgnoreCase(actual)) {
+			fail("Expected: " + expected + " | but was: " + actual);
+		}
+	}
+	
 	@Test
 	void testWhenNull() {
 		assertThrows(IllegalArgumentException.class, () -> {
@@ -47,7 +62,7 @@ class TestConstructor {
 	void testValidCodepoint() {
 		Codepoint train = new Codepoint("1F682");
 		
-		assertEquals("1F682", train.getHexString());  
+		assertEquals("1f682", train.getHexString());  
 	}
 
 }
