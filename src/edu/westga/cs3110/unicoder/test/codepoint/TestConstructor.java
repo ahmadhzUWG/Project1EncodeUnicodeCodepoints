@@ -1,36 +1,12 @@
 package edu.westga.cs3110.unicoder.test.codepoint;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import edu.westga.cs3110.unicoder.model.Codepoint;
 
 class TestConstructor {
-
-	/**
-	 * Assert equals method ignores case for strings only
-	 * 
-	 * @precondition none
-	 * @postcondition none
-	 * 
-	 * @param expected the expected string
-	 * @param actual the actual string
-	 */
-	public static void assertEquals(String expected, String actual) {
-		if (expected == null && actual == null) { 
-			return;
-		}
-		if (expected == null) {
-			fail("Expected string is null and actual is not.");
-		}
-		if (actual == null) {
-			fail("Expected string is not null and actual is null.");
-		}
-		if (!expected.equalsIgnoreCase(actual)) {
-			fail("Expected: " + expected + " | but was: " + actual);
-		}
-	}
 	
 	@Test
 	void testWhenNull() {
@@ -71,7 +47,7 @@ class TestConstructor {
 	void testValidCodepoint() {
 		Codepoint train = new Codepoint("1F682");
 		
-		assertEquals("1f682", train.getHexString());  
+		TestHelper.assertEquals("1f682", train.getHexString());  
 	}
 
 }

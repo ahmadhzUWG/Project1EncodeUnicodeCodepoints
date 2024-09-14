@@ -16,7 +16,7 @@ public class Codepoint {
 	/**
 	 * Creates a codepoint with the given hexadecimal string
 	 * 
-	 * @precondition hexString != null && !hexString.isBlank()
+	 * @precondition hexString != null && !hexString.isBlank() && isValidCodepoint(hexString)
 	 * @postcondition codepoint is created
 	 * 
 	 * @param hexString the hexadecimal string associated with the codepoint, without spaces or 0x prefix
@@ -31,7 +31,7 @@ public class Codepoint {
 		if (!isValidCodepoint(hexString)) {
 			throw new IllegalArgumentException("The hexadecimal string isn't a valid codepoint");
 		} else {
-			this.hexString = hexString;  
+			this.hexString = hexString;   
 		}
 		
 	}
@@ -46,7 +46,14 @@ public class Codepoint {
 	 * @return the codepoint as a 4-byte UTF-32 encoded string, without spaces or 0x prefix
 	 */
 	public String toUTF32() {
-		throw new UnsupportedOperationException(); 
+		int paddedZeros = 8 - this.hexString.length();
+		String utf32 = "";
+		
+		for (int index = 0; index < paddedZeros; index++) {
+			utf32 = utf32.concat("0");
+		}
+		
+		return utf32 + this.hexString;
 	}
 	
 	/**
@@ -92,7 +99,7 @@ public class Codepoint {
 			int codepoint = Integer.parseInt(hexString, 16);
 			
 			return codepoint >= UNICODE_MIN && codepoint <= UNICODE_MAX;
-		} catch (Exception abc) {
+		} catch (Exception abc) { 
 			return false;
 		}
 	}
