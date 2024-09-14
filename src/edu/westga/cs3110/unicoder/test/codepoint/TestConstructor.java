@@ -22,6 +22,13 @@ class TestConstructor {
 		});
 	}
 	
+	@Test
+	void testInvalidCodepoint() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			new Codepoint("9999999");
+		});
+	}
+	
 	@Test 
 	void testValidCodepoint() {
 		Codepoint train = new Codepoint("1F682");
