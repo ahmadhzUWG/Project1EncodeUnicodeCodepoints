@@ -31,7 +31,7 @@ public class Codepoint {
 		if (!isValidCodepoint(hexString)) {
 			throw new IllegalArgumentException("The hexadecimal string isn't a valid codepoint");
 		} else {
-			this.hexString = hexString;
+			this.hexString = hexString; 
 		}
 		
 	}

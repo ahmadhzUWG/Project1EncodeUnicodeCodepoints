@@ -23,9 +23,23 @@ class TestConstructor {
 	}
 	
 	@Test
-	void testInvalidCodepoint() {
+	void testTopBoundaryInvalidCodepoint() {
 		assertThrows(IllegalArgumentException.class, () -> {
 			new Codepoint("9999999");
+		});
+	}
+	
+	@Test
+	void testLowBoundaryInvalidCodepoint() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			new Codepoint("-000000001");
+		});
+	}
+	
+	@Test
+	void testInvalidCodepointOfSpecialCharacters() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			new Codepoint("-----------");
 		});
 	}
 	
@@ -33,7 +47,7 @@ class TestConstructor {
 	void testValidCodepoint() {
 		Codepoint train = new Codepoint("1F682");
 		
-		assertEquals("1F682", train.getHexString()); 
+		assertEquals("1F682", train.getHexString());  
 	}
 
 }
