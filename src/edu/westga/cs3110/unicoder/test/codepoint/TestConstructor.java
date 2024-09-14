@@ -8,8 +8,17 @@ import edu.westga.cs3110.unicoder.model.Codepoint;
 
 class TestConstructor {
 
+	/**
+	 * Assert equals method ignores case for strings only
+	 * 
+	 * @precondition none
+	 * @postcondition none
+	 * 
+	 * @param expected the expected string
+	 * @param actual the actual string
+	 */
 	public static void assertEquals(String expected, String actual) {
-		if (expected == null && actual == null) {
+		if (expected == null && actual == null) { 
 			return;
 		}
 		if (expected == null) {
