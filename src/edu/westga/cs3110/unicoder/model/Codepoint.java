@@ -46,27 +46,45 @@ public class Codepoint {
 	 * @return the codepoint as a 4-byte UTF-32 encoded string, without spaces or 0x prefix
 	 */
 	public String toUTF32() {
-//		int paddedZeros = 8 - this.hexString.length();
-//		String utf32 = "";
-//		
-//		for (int index = 0; index < paddedZeros; index++) {
-//			utf32 = utf32.concat("0");
-//		}
-		
 		return String.format("%08x", Integer.parseInt(this.hexString, 16));
 	}
 	
 	/**
 	 * Returns the codepoint in UTF-16 encoding, as either a
-	 * 4-digit or 8-digit hexadecimal string (as appropriate), without spaces or 0x prefix
+	 * 4-digit or 8-digit hexadecimal string (as appropriate), without spaces or 0x prefix.
+	 * Will return null if not possible to encode string
 	 * 
 	 * @precondition none
 	 * @postcondition none
 	 *  
-	 * @return the codepoint as a 2-byte/4-byte (as appropriate) UTF-16 encoded string, without spaces or 0x prefix
+	 * @return the codepoint as a 2-byte/4-byte (as appropriate) UTF-16 encoded string, without spaces or 0x prefix or null if isn't possible
 	 */
 	public String toUTF16() {
-		throw new UnsupportedOperationException(); 
+		int min2ByteRange1 = 0x0000;
+		int max2ByteRange1 = 0xD7FF;
+		int min2ByteRange2 = 0xE000;
+		int max2ByteRange2 = 0xFFFF;
+		int min4ByteRange = 0x10000;
+		int max4ByteRange = 0x10FFFF;
+		
+		int valueOfHex = Integer.parseInt(this.hexString, 16);
+		boolean isBetweenFirst2ByteRange = valueOfHex >= min2ByteRange1 && valueOfHex <= max2ByteRange1;
+		boolean isBetweenSecond2ByteRange = valueOfHex >= min2ByteRange2 && valueOfHex <= max2ByteRange2;
+		
+		if (isBetweenFirst2ByteRange || isBetweenSecond2ByteRange) {
+			return String.format("%04x", valueOfHex);
+		} else if (valueOfHex >= min4ByteRange && valueOfHex <= max4ByteRange) {
+			int point = valueOfHex - min4ByteRange;
+			int decimalValue = Integer.parseInt(Integer.toHexString(point), 16);
+			
+			String pointAs20Bits = String.format("%20s", Integer.toBinaryString(decimalValue)).replaceAll(" ", "0");
+			String first10Bits = pointAs20Bits.substring(0, 10);
+			String last10Bits = pointAs20Bits.substring(10);
+			
+			return this.decodeHighSurrogate(first10Bits) + this.decodeLowerSurrogate(last10Bits);
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -102,5 +120,33 @@ public class Codepoint {
 		} catch (Exception abc) { 
 			return false;
 		}
+	}
+	
+	private String decodeHighSurrogate(String upperBits) {
+		int higherDigit = Integer.parseInt(upperBits.substring(0, 2), 2);
+		String higherDigitAsHex = Integer.toHexString(higherDigit);
+		
+		int middleDigit = Integer.parseInt(upperBits.substring(2, 6), 2);
+		String middleDigitAsHex = Integer.toHexString(middleDigit);
+		
+		int lowerDigit = Integer.parseInt(upperBits.substring(6), 2);
+		String lowerDigitAsHex = Integer.toHexString(lowerDigit);
+		
+		String hex = higherDigitAsHex + middleDigitAsHex + lowerDigitAsHex;
+		return Integer.toHexString(0xD800 + Integer.parseInt(hex, 16));
+	}
+	
+	private String decodeLowerSurrogate(String lowerBits) {
+		int higherDigit = Integer.parseInt(lowerBits.substring(0, 2), 2);
+		String higherDigitAsHex = Integer.toHexString(higherDigit);
+		
+		int middleDigit = Integer.parseInt(lowerBits.substring(2, 6), 2);
+		String middleDigitAsHex = Integer.toHexString(middleDigit);
+		
+		int lowerDigit = Integer.parseInt(lowerBits.substring(6), 2);
+		String lowerDigitAsHex = Integer.toHexString(lowerDigit);
+		
+		String hex = higherDigitAsHex + middleDigitAsHex + lowerDigitAsHex;
+		return Integer.toHexString(0xDC00 + Integer.parseInt(hex, 16));
 	}
 }
