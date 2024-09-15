@@ -62,8 +62,10 @@ public class Codepoint {
 	public String toUTF16() {
 		int min2ByteRange1 = 0x0000;
 		int max2ByteRange1 = 0xD7FF;
+		
 		int min2ByteRange2 = 0xE000;
 		int max2ByteRange2 = 0xFFFF;
+		
 		int min4ByteRange = 0x10000;
 		int max4ByteRange = 0x10FFFF;
 		
@@ -75,9 +77,8 @@ public class Codepoint {
 			return String.format("%04x", valueOfHex);
 		} else if (valueOfHex >= min4ByteRange && valueOfHex <= max4ByteRange) {
 			int point = valueOfHex - min4ByteRange;
-			int decimalValue = Integer.parseInt(Integer.toHexString(point), 16);
 			
-			String pointAs20Bits = String.format("%20s", Integer.toBinaryString(decimalValue)).replaceAll(" ", "0");
+			String pointAs20Bits = String.format("%20s", Integer.toBinaryString(point)).replaceAll(" ", "0");
 			String first10Bits = pointAs20Bits.substring(0, 10);
 			String last10Bits = pointAs20Bits.substring(10);
 			
@@ -97,9 +98,76 @@ public class Codepoint {
 	 * @return the codepoint as a 1-byte/2-byte/3-byte/4-byte (as appropriate) UTF-8 encoded string, without spaces or 0x prefix
 	 */
 	public String toUTF8() {
-		throw new UnsupportedOperationException(); 
+		int min1ByteRange = 0x0000;
+		int max1ByteRange = 0x007F;
+		 
+		int min2ByteRange = 0x0080;
+		int max2ByteRange = 0x07FF;
+		
+		int min3ByteRange = 0x0800;
+		int max3ByteRange = 0xFFFF;
+		
+		int valueOfHex = Integer.parseInt(this.hexString, 16);
+		
+		if (valueOfHex >= min1ByteRange && valueOfHex <= max1ByteRange) {
+			return String.format("%02x", valueOfHex);
+		} else if (valueOfHex >= min2ByteRange && valueOfHex <= max2ByteRange) {
+			return this.encodeAs2ByteUTF8();
+		} else if (valueOfHex >= min3ByteRange && valueOfHex <= max3ByteRange) {
+			return this.encodeAs3ByteUTF8();
+		}
+		
+		return this.encodeAs4ByteUTF8();
 	}
 	
+	private String encodeAs4ByteUTF8() {
+		int valueOfHex = Integer.parseInt(this.hexString, 16);
+		
+		String hexInBinary = String.format("%24s", Integer.toBinaryString(valueOfHex)).replaceAll(" ", "0");
+		String lower6Bits = hexInBinary.substring(hexInBinary.length() - 6);
+		String next6Bits = hexInBinary.substring(hexInBinary.length() - 12, hexInBinary.length() - 6);
+		String sixBitsAfterNext = hexInBinary.substring(hexInBinary.length() - 18, hexInBinary.length() - 12);
+		String upper3Bits = hexInBinary.substring(hexInBinary.length() - 21, hexInBinary.length() - 18);
+	
+		String byte1 = "11110" + upper3Bits; 
+		String byte2 = "10" + sixBitsAfterNext;
+		String byte3 = "10" + next6Bits;
+		String byte4 = "10" + lower6Bits;
+		String bytes = byte1 + byte2 + byte3 + byte4;
+		
+		return Long.toHexString(Long.parseLong(bytes, 2));
+	}
+
+	private String encodeAs3ByteUTF8() {
+		int valueOfHex = Integer.parseInt(this.hexString, 16);
+		
+		String hexInBinary = String.format("%16s", Integer.toBinaryString(valueOfHex)).replaceAll(" ", "0");
+		String lower6Bits = hexInBinary.substring(hexInBinary.length() - 6);
+		String next6Bits = hexInBinary.substring(hexInBinary.length() - 12, hexInBinary.length() - 6);
+		String upper4Bits = hexInBinary.substring(0, hexInBinary.length() - 12);
+		
+		String byte1 = "1110" + upper4Bits;
+		String byte2 = "10" + next6Bits;
+		String byte3 = "10" + lower6Bits;
+		String bytes = byte1 + byte2 + byte3;
+		
+		return Integer.toHexString(Integer.parseInt(bytes, 2));
+	}
+
+	private String encodeAs2ByteUTF8() {
+		int valueOfHex = Integer.parseInt(this.hexString, 16);
+		
+		String hexInBinary = String.format("%16s", Integer.toBinaryString(valueOfHex)).replaceAll(" ", "0");
+		String lower6Bits = hexInBinary.substring(hexInBinary.length() - 6);
+		String next5Bits = hexInBinary.substring(hexInBinary.length() - 11, hexInBinary.length() - 6);
+		
+		String byte1 = "110" + next5Bits;
+		String byte2 = "10" + lower6Bits;
+		String bytes = byte1 + byte2;
+		
+		return Integer.toHexString(Integer.parseInt(bytes, 2));
+	}
+
 	/**
 	 * Gets the hexadecimal string and returns it
 	 * 
@@ -123,6 +191,16 @@ public class Codepoint {
 	}
 	
 	private String decodeHighSurrogate(String upperBits) {
+		String hex = this.convert10BitsToHex(upperBits);
+		return Integer.toHexString(0xD800 + Integer.parseInt(hex, 16));
+	}
+
+	private String decodeLowerSurrogate(String lowerBits) {
+		String hex = this.convert10BitsToHex(lowerBits);
+		return Integer.toHexString(0xDC00 + Integer.parseInt(hex, 16));
+	}
+	
+	private String convert10BitsToHex(String upperBits) {
 		int higherDigit = Integer.parseInt(upperBits.substring(0, 2), 2);
 		String higherDigitAsHex = Integer.toHexString(higherDigit);
 		
@@ -133,20 +211,6 @@ public class Codepoint {
 		String lowerDigitAsHex = Integer.toHexString(lowerDigit);
 		
 		String hex = higherDigitAsHex + middleDigitAsHex + lowerDigitAsHex;
-		return Integer.toHexString(0xD800 + Integer.parseInt(hex, 16));
-	}
-	
-	private String decodeLowerSurrogate(String lowerBits) {
-		int higherDigit = Integer.parseInt(lowerBits.substring(0, 2), 2);
-		String higherDigitAsHex = Integer.toHexString(higherDigit);
-		
-		int middleDigit = Integer.parseInt(lowerBits.substring(2, 6), 2);
-		String middleDigitAsHex = Integer.toHexString(middleDigit);
-		
-		int lowerDigit = Integer.parseInt(lowerBits.substring(6), 2);
-		String lowerDigitAsHex = Integer.toHexString(lowerDigit);
-		
-		String hex = higherDigitAsHex + middleDigitAsHex + lowerDigitAsHex;
-		return Integer.toHexString(0xDC00 + Integer.parseInt(hex, 16));
+		return hex;
 	}
 }
